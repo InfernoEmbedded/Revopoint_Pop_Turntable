@@ -1,0 +1,83 @@
+substitutions:
+  name: "Turntable"
+  espname: "turntable"
+
+<<: !include common.yaml
+
+status_led:
+  pin:
+    number:  GPIO13
+    inverted: True
+
+binary_sensor:
+- platform: gpio
+  pin:
+    number: GPIO0
+    inverted: true
+  id: button1
+  on_multi_click:
+    - timing:
+        - ON for at most 0.5s
+      then:
+        - logger.log: "Single press, 10 steps/sec"
+        - stepper.set_speed:
+            id: my_stepper
+            speed: 10 steps/s
+        - stepper.report_position:
+            id: my_stepper
+            position: 0
+        - stepper.set_target:
+            id: my_stepper
+            target: 8000
+    - timing:
+        - ON for at least 0.5s
+      then:
+        - logger.log: "Long press, 50 steps/sec"
+        - stepper.set_speed:
+            id: my_stepper
+            speed: 50 steps/s
+        - stepper.report_position:
+            id: my_stepper
+            position: 0
+        - stepper.set_target:
+            id: my_stepper
+            target: 8000
+    - timing:
+        - ON for at most 0.5s
+        - OFF for at most 0.3s
+        - ON for at most 0.5s
+      then:
+        - logger.log: "Double press, 5 steps/sec"
+        - stepper.set_speed:
+            id: my_stepper
+            speed: 5 steps/s
+        - stepper.report_position:
+            id: my_stepper
+            position: 0
+        - stepper.set_target:
+            id: my_stepper
+            target: 8000
+
+stepper:
+  - platform: uln2003
+    id: my_stepper
+    pin_a:
+      number: GPIO5
+      inverted: true
+    pin_b:
+      number: GPIO4
+      inverted: true
+    pin_c:
+      number: GPIO16
+      inverted: true
+    pin_d:
+      number: GPIO2
+      inverted: true
+    max_speed: 1000 steps/s
+    step_mode: HALF_STEP
+    sleep_when_done: true
+
+    # Optional:
+    acceleration: inf
+    deceleration: inf
+

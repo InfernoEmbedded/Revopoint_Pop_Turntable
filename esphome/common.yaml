@@ -1,0 +1,6 @@
+<<: !include common_no_serial.yaml
+
+# Enable logging
+logger:
+  baud_rate: 115200
+
